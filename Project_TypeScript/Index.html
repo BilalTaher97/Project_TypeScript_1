@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <form action="" id="Task_Form">
+        <input type="hidden" id="taskId" />
+        <label for="title">Title</label>
+        <input type="text" id="title">
+        <label for="states">States</label>
+        <input type="text" id="states">
+        <label for="startdate">StartDate</label>
+        <input type="text" id="startdate">
+        <label for="endtdate">EndDate</label>
+        <input type="text" id="endtdate">
+        <button type="submit">Add Task</button>
+    </form>
+
+    <br><br>
+
+    <h2 class="Title_1">All Tasks</h2>
+    <div class="TaskList" id="TaskList">
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Title</th>
+                    <th>States</th>
+                    <th>StartDate</th>
+                    <th>EndDate</th>
+                </tr>
+            </thead>
+            <tbody id="_Data">
+            
+            </tbody>
+        </table>
+    </div>
+
+    <script src="Code1.js"></script>
+</body>
+</html>
