@@ -6,73 +6,44 @@ interface Task {
     EndDate: string;
 }
 
-let TaskList = document.getElementById('_Data') as HTMLTableSectionElement;
-let TaskForm = document.getElementById("Task_Form") as HTMLFormElement;
-let Update = document.getElementById("Edit_Task");
-document.addEventListener("DOMContentLoaded", loadTasks);
 
-if (TaskForm) {
-    TaskForm.addEventListener("submit", function (event: Event) {
+let Task_Form = (document.getElementById('Task_Form') as HTMLFormElement);
+
+document.addEventListener('DOMContentLoaded',loadAllTasks);
+
+
+if(Task_Form)
+{
+
+    Task_Form.addEventListener('submit',function(event:Event){
         event.preventDefault();
+       
 
-        const Title_1 = (document.getElementById("title") as HTMLInputElement).value.trim();
-        const States_1 = (document.getElementById("states") as HTMLInputElement).value.trim();
-        const StartDate_1 = (document.getElementById("startdate") as HTMLInputElement).value;
-        const EndDate_1 = (document.getElementById("endtdate") as HTMLInputElement).value;
-
-        const taskIdToEdit = parseInt((document.getElementById("taskId") as HTMLInputElement).value); 
+        const Title_1 = (document.getElementById('title') as HTMLInputElement).value.trim();
+        const States_1 = (document.getElementById('states') as HTMLInputElement).value.trim();
+        const StartDate_1 = (document.getElementById('startdate') as HTMLInputElement).value.trim();
+        const EndDate_1 = (document.getElementById('endtdate') as HTMLInputElement).value.trim();
 
         let tasks: Task[] = JSON.parse(localStorage.getItem('tasks') || '[]');
+        let newId = 1;
+        newId =  tasks.length > 0 ? tasks[tasks.length - 1].id + 1 : 1;
 
-        if (taskIdToEdit) {
-     
-            let taskIndex = -1;
-            for (let i = 0; i < tasks.length; i++) {
-                if (tasks[i].id === taskIdToEdit) {
-                    taskIndex = i;
-                    break;
-                }
-            }
-            
-            if (taskIndex !== -1) {
-                tasks[taskIndex] = {
-                    id: taskIdToEdit,
-                    Title: Title_1,
-                    States: States_1,
-                    StartDate: StartDate_1,
-                    EndDate: EndDate_1
-                };
-                localStorage.setItem("tasks", JSON.stringify(tasks));
-                displayTasks(); 
-                TaskForm.reset();
-            
-                (document.getElementById("taskId") as HTMLInputElement).value = '';
-                // console.log("taskIdToEdit:", taskIdToEdit);
-                // console.log("Existing IDs:", tasks.map(t => t.id));
-            } else {
-                console.log("Task not found!");
-            }
-        } else {
-     
-            let newId = tasks.length > 0 ? tasks[tasks.length - 1].id + 1 : 1;
-            const newTask: Task = {
-                id: newId,
-                Title: Title_1,
-                States: States_1,
-                StartDate: StartDate_1,
-                EndDate: EndDate_1
-            };
-            tasks.push(newTask);
-            localStorage.setItem("tasks", JSON.stringify(tasks));
-            displayTasks(); 
-            TaskForm.reset();
+        let _Task : Task = {
+
+            id:newId,
+            Title:Title_1,
+            States:States_1,
+            StartDate:StartDate_1,
+            EndDate:EndDate_1
         }
-    });
-}
+        tasks.push(_Task);
+        localStorage.setItem('tasks',JSON.stringify(tasks))
+        Task_Form.reset();
+        displayAllTask()
+    })
 
+     
 
-function loadTasks(): void {
-    displayTasks();
 }
 
 function getTasksFromStorage(): Task[] {
@@ -85,67 +56,62 @@ function getTasksFromStorage(): Task[] {
     }
 }
 
-function displayTasks(): void {
-    TaskList.innerHTML = "";  
+let Table_Data = (document.getElementById('_Data')as HTMLSelectElement);
 
-    const tasks: Task[] = getTasksFromStorage();
+function displayAllTask() : void
+{
 
-    tasks.forEach((T) => {
-        let row = document.createElement("tr");
+    Table_Data.innerHTML = '';
+
+    let tasks: Task[] = getTasksFromStorage();
+    
+    tasks.forEach(T => {
+
+        let row = document.createElement('tr');
+
         row.innerHTML = `
-            <td>${T.id}</td>
-            <td>${T.Title}</td>
-            <td>${T.States}</td>
-            <td>${T.StartDate}</td>
-            <td>${T.EndDate}</td>
-            <td><button class="edit-btn" data-id="${T.id}">Edit</button></td>
-            <td><button class="Det_Task" data-id="${T.id}">Delete</button></td>
+        <td>${T.id}</td>
+        <td>${T.Title}</td>
+        <td>${T.States}</td>
+        <td>${T.StartDate}</td>
+        <td>${T.EndDate}</td>
+        <td><button class="edit-btn" data-id="${T.id}">Edit</button></td>
+        <td><button class="Det_Task" data-id="${T.id}">Delete</button></td>
         `;
-        TaskList.appendChild(row);
-    });
 
-    attachEventListeners(); // ✅ استدعاء إعادة تعيين الأحداث بعد كل تحديث للجدول
+        Table_Data.appendChild(row);
 
-    document.querySelectorAll(".edit-btn").forEach(button => {
-        button.addEventListener("click", function(this: HTMLButtonElement) {
-            const taskId = parseInt(this.getAttribute("data-id") || "0");
-            console.log(taskId);
+
+    })
     
-            const tasks: Task[] = getTasksFromStorage();
-            const filteredTasks = tasks.filter(task => task.id === taskId);
-    
-            if (filteredTasks.length > 0) {
-                const taskToEdit = filteredTasks[0]; 
-    
-                (document.getElementById("title") as HTMLInputElement).value = taskToEdit.Title;
-                (document.getElementById("states") as HTMLInputElement).value = taskToEdit.States;
-                (document.getElementById("startdate") as HTMLInputElement).value = taskToEdit.StartDate;
-                (document.getElementById("endtdate") as HTMLInputElement).value = taskToEdit.EndDate;
-    
-                (document.getElementById("taskId") as HTMLInputElement).value = taskToEdit.id.toString();
-            } else {
-                console.log("Task not found!");
-            }
-        });
-    });
+    Delete();
 }
 
 
-function attachEventListeners() {
-    document.querySelectorAll(".Det_Task").forEach(button => {
-        button.addEventListener("click", function(this: HTMLButtonElement) {
-            const taskId = parseInt(this.getAttribute("data-id") || "0");
-            console.log("Deleting task with ID:", taskId);
-
-            let tasks: Task[] = getTasksFromStorage();
-            tasks = tasks.filter(task => task.id !== taskId);
-
-            localStorage.setItem("tasks", JSON.stringify(tasks));
-            displayTasks(); 
-        });
-    });
+function loadAllTasks() : void
+{
+    displayAllTask();
 }
 
-document.addEventListener("DOMContentLoaded", displayTasks); 
 
 
+function Delete() : void{
+
+    document.querySelectorAll('.Det_Task').forEach(button => {
+        
+        button.addEventListener("click",function(this: HTMLButtonElement)
+    {
+        const task_Id = parseInt(this.getAttribute('data-id') || "0");
+        let All_Tasks: Task[] = getTasksFromStorage();
+
+        All_Tasks = All_Tasks.filter(task => task.id !== task_Id);
+        localStorage.setItem('tasks',JSON.stringify(All_Tasks));
+        displayAllTask();
+    })
+   
+    })
+}
+
+
+
+document.addEventListener('DOMContentLoaded',displayAllTask);
